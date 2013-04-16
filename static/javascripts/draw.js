@@ -8,15 +8,26 @@ $(document).ready(function() {
     if (canvas.getContext) {
       var ctx = canvas.getContext('2d');
       var paint = false;
-      var xCoordinates = [];
-      var yCoordinates = [];
-      var drag = [];
+      var pointX = [];
+      var pointY = [];
+      var pointDrag = [];
+      var pointColor = [];
+
+      var colors = {
+        red:         '#ee4035',
+        green:       '#00a94f',
+        blue:        '#0079c2',
+        yellow:      '#ffd203',
+        orange:      '#f89828',
+        purple:      '#5a4099'
+      };
+      var currentColor = colors.red;
 
       $('#canvas').on('mousedown', function (event) {
         var mouseX = event.pageX - $(this).offset().left;
         var mouseY = event.pageY - $(this).offset().top;
         paint = true;
-        addCoordinates(mouseX, mouseY);
+        addPointInfo(mouseX, mouseY);
         redraw();
       });
 
@@ -24,7 +35,7 @@ $(document).ready(function() {
         if (paint) {
           var mouseX = event.pageX - $(this).offset().left;
           var mouseY = event.pageY - $(this).offset().top;
-          addCoordinates(mouseX, mouseY, true);
+          addPointInfo(mouseX, mouseY, true);
           redraw();
         }
       });
@@ -33,31 +44,56 @@ $(document).ready(function() {
         paint = false;
       });
 
-      var addCoordinates = function (x, y, dragging) {
-        xCoordinates.push(x);
-        yCoordinates.push(y);
-        drag.push(dragging);
+      var initColorBar = function () {
+        var $colorBar = $('.color-bar');
+        $.each(colors, function (key, value) {
+          var $li = $('<li></li>')
+            .append(
+              $('<a href="#"></a>')
+                .attr('data-color', key)
+                .css('background-color', value)
+            );
+          $colorBar.append($li);
+        });
+        $colorBar.children().first().addClass('active');
+      };
+
+      var addPointInfo = function (x, y, dragging) {
+        pointX.push(x);
+        pointY.push(y);
+        pointDrag.push(dragging);
+        pointColor.push(currentColor);
       };
 
       var redraw = function () {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        ctx.strokeStyle = "#df4b26";
         ctx.lineJoin = "round";
         ctx.lineWidth = 4;
 
-        for(var i = 0; i < xCoordinates.length; i++) {
+        for(var i = 0; i < pointX.length; i++) {
           ctx.beginPath();
-          if(drag[i] && i) {
-            ctx.moveTo(xCoordinates[i - 1], yCoordinates[i - 1]);
+          if(pointDrag[i] && i) {
+            ctx.moveTo(pointX[i - 1], pointY[i - 1]);
            }else{
-             ctx.moveTo(xCoordinates[i] - 1, yCoordinates[i]);
+             ctx.moveTo(pointX[i] - 1, pointY[i]);
            }
-           ctx.lineTo(xCoordinates[i], yCoordinates[i]);
+           ctx.lineTo(pointX[i], pointY[i]);
            ctx.closePath();
+           ctx.strokeStyle = pointColor[i];
            ctx.stroke();
         }
       };
+
+      initColorBar();
+
+      $('.color-bar li').on('click', function (event) {
+        event.preventDefault();
+        var $li = $(event.target).closest('li');
+        $('.color-bar li').removeClass('active');
+        $li.addClass('active');
+        currentColor = $li.children().first().attr('data-color');
+      });
     }
 
   })();
