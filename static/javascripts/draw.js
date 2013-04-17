@@ -13,6 +13,7 @@ $(document).ready(function() {
       var pointY = [];
       var pointDrag = [];
       var pointColor = [];
+      var newPoints;
 
       var colors = {
         red:         '#ee4035',
@@ -27,6 +28,7 @@ $(document).ready(function() {
       $('#canvas').on('mousedown', function (event) {
         var mouseX = event.pageX - $(this).offset().left;
         var mouseY = event.pageY - $(this).offset().top;
+        newPoints = [];
         paint = true;
         addPointInfo(mouseX, mouseY);
         redraw();
@@ -43,19 +45,16 @@ $(document).ready(function() {
 
       $('#canvas').on('mouseup mouseleave', function (event) {
         paint = false;
-        socket.emit('draw', {
-          xs: pointX,
-          ys: pointY,
-          colors: pointColor,
-          drags: pointDrag,
-        });
+        socket.emit('draw', newPoints);
       });
 
       socket.on('draw', function (data) {
         var color = currentColor;
-        for (var i = 0; i < data.xs.length; i += 1) {
-          currentColor = data.colors[i];
-          addPointInfo(data.xs[i], data.ys[i], data.drags[i]);
+        var d;
+        for (var i = 0; i < data.length; i += 1) {
+          d = data[i];
+          currentColor = d.color;
+          addPointInfo(d.x, d.y, d.dragging);
         }
         redraw();
         currentColor = color;
@@ -76,6 +75,13 @@ $(document).ready(function() {
       };
 
       var addPointInfo = function (x, y, dragging) {
+        if (newPoints)
+          newPoints.push({
+            x: x,
+            y: y,
+            dragging: dragging,
+            color: currentColor,
+          });
         pointX.push(x);
         pointY.push(y);
         pointDrag.push(dragging);
