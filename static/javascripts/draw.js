@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  var socket = io.connect();
 
   (function(){
 
@@ -42,6 +43,20 @@ $(document).ready(function() {
 
       $('#canvas').on('mouseup mouseleave', function (event) {
         paint = false;
+        socket.emit('draw', {
+          xs: pointX,
+          ys: pointY,
+          colors: pointColor,
+          drags: pointDrag,
+        });
+      });
+
+      socket.on('draw', function (data) {
+        for (var i = 0; i < data.xs.length; i += 1) {
+          currentColor = data.colors[i];
+          addPointInfo(data.xs[i], data.ys[i], data.drags[i]);
+        }
+        redraw();
       });
 
       var initColorBar = function () {

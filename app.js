@@ -2,6 +2,7 @@ var fs = require('fs');
 var express = require('express');
 
 var app = express();
+var server = require('http').createServer(app);
 
 // Serve the index view.
 app.get('/', function (req, res) {
@@ -19,5 +20,9 @@ var assetGroups = require('./assets');
 var assetManager = require('connect-assetmanager');
 app.use(assetManager(assetGroups));
 
-app.listen(8080);
+// Configure socket.io.
+var io = require('socket.io').listen(server);
+require('./socket')(io);
+
+server.listen(8080);
 console.log('Listening on port 8080.');
