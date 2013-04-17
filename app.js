@@ -6,13 +6,13 @@ var server = require('http').createServer(app);
 
 // Serve the index view.
 app.get('/', function (req, res) {
-    res.set('Content-Type', 'text/html');
-    fs.readFile('./index.html', function (err, data) {
-        if (err) {
-            res.send(500, err);
-        }
-        res.send(data);
-    });
+  res.set('Content-Type', 'text/html');
+  fs.readFile('./index.html', function (err, data) {
+    if (err) {
+      res.send(500, err);
+    }
+    res.send(data);
+  });
 });
 
 // Serve assets.
