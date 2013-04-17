@@ -52,11 +52,13 @@ $(document).ready(function() {
       });
 
       socket.on('draw', function (data) {
+        var color = currentColor;
         for (var i = 0; i < data.xs.length; i += 1) {
           currentColor = data.colors[i];
           addPointInfo(data.xs[i], data.ys[i], data.drags[i]);
         }
         redraw();
+        currentColor = color;
       });
 
       var initColorBar = function () {
