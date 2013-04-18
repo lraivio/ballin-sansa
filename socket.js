@@ -4,6 +4,7 @@ var drawerQueue = [];
 var drawing = [];
 var roundTimer;
 var word;
+var words = require('./words');
 
 module.exports = function (io) {
   function endRound() {
@@ -22,7 +23,7 @@ module.exports = function (io) {
   }
 
   function startRound() {
-    word = 'pear'; // TODO: Randomize.
+    word = words[~~(Math.random() * words.length)];
 
     drawerQueue[0].emit('round start', {
       drawer: true,
