@@ -48,6 +48,21 @@ $(document).ready(function() {
         socket.emit('draw', newPoints);
       });
 
+      socket.on('round end', function (data) {
+        console.log('round ended!', data);
+        pointX = [];
+        pointY = [];
+        pointDrag = [];
+        pointColor = [];
+        newPoints = [];
+        redraw();
+      });
+      socket.on('round start', function (data) {
+        console.log('round started!', data);
+        if (data.drawer)
+          console.log('You are drawing!');
+      });
+
       socket.on('draw', function (data) {
         var color = currentColor;
         var d;
