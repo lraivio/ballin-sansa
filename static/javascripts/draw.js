@@ -1,7 +1,7 @@
 $(document).ready(function() {
   var socket = io.connect();
 
-  (function(){
+  (function() {
 
     var canvas = document.getElementById('canvas');
 
@@ -9,10 +9,7 @@ $(document).ready(function() {
     if (canvas.getContext) {
       var ctx = canvas.getContext('2d');
       var paint = false;
-      var pointX = [];
-      var pointY = [];
-      var pointDrag = [];
-      var pointColor = [];
+      var points = [];
       var newPoints;
 
       var colors = {
@@ -50,10 +47,7 @@ $(document).ready(function() {
 
       socket.on('round end', function (data) {
         console.log('round ended!', data);
-        pointX = [];
-        pointY = [];
-        pointDrag = [];
-        pointColor = [];
+        points = [];
         newPoints = [];
         redraw();
       });
@@ -68,11 +62,9 @@ $(document).ready(function() {
         var d;
         for (var i = 0; i < data.length; i += 1) {
           d = data[i];
-          currentColor = d.color;
-          addPointInfo(d.x, d.y, d.dragging);
+          addPointInfo(d.x, d.y, d.dragging, d.color);
         }
         redraw();
-        currentColor = color;
       });
 
       var initColorBar = function () {
@@ -89,37 +81,37 @@ $(document).ready(function() {
         $colorBar.children().first().addClass('active');
       };
 
-      var addPointInfo = function (x, y, dragging) {
+      var addPointInfo = function (x, y, dragging, color) {
+        var point = {
+          x: x,
+          y: y,
+          dragging: dragging,
+          color: color || currentColor,
+        };
         if (newPoints)
-          newPoints.push({
-            x: x,
-            y: y,
-            dragging: dragging,
-            color: currentColor,
-          });
-        pointX.push(x);
-        pointY.push(y);
-        pointDrag.push(dragging);
-        pointColor.push(currentColor);
+          newPoints.push(point);
+        points.push(point);
       };
 
       var redraw = function () {
+        var point;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.lineJoin = "round";
         ctx.lineWidth = 4;
 
-        for(var i = 0; i < pointX.length; i++) {
+        for (var i = 0; i < points.length; i++) {
+          point = points[i];
           ctx.beginPath();
-          if(pointDrag[i] && i) {
-            ctx.moveTo(pointX[i - 1], pointY[i - 1]);
-           }else{
-             ctx.moveTo(pointX[i] - 1, pointY[i]);
-           }
-           ctx.lineTo(pointX[i], pointY[i]);
-           ctx.closePath();
-           ctx.strokeStyle = pointColor[i];
-           ctx.stroke();
+          if (point.dragging && i) {
+            ctx.moveTo(points[i - 1].x, points[i - 1].y);
+          } else {
+            ctx.moveTo(point.x - 1, point.y);
+          }
+          ctx.lineTo(point.x, point.y);
+          ctx.closePath();
+          ctx.strokeStyle = point.color;
+          ctx.stroke();
         }
       };
 
