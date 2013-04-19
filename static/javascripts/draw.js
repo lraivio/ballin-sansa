@@ -41,8 +41,10 @@ $(document).ready(function() {
       });
 
       $('#canvas').on('mouseup mouseleave', function (event) {
-        paint = false;
-        socket.emit('draw', newPoints);
+        if (paint) {
+          paint = false;
+          socket.emit('draw', newPoints);
+        }
       });
 
       socket.on('round end', function (data) {
