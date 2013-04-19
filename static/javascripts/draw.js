@@ -88,7 +88,7 @@ $(document).ready(function() {
           x: x,
           y: y,
           dragging: dragging,
-          color: color || currentColor,
+          color: color || currentColor
         };
         if (newPoints)
           newPoints.push(point);
@@ -124,7 +124,7 @@ $(document).ready(function() {
         var $li = $(event.target).closest('li');
         $('.color-bar li').removeClass('active');
         $li.addClass('active');
-        currentColor = $li.children().first().attr('data-color');
+        currentColor = $li.find('a').attr('data-color');
       });
     }
 
