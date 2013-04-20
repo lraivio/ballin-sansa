@@ -1,6 +1,7 @@
 var ROUND_LENGTH = 45;
 
 var drawerQueue = [];
+var usernames = {};
 var drawing = [];
 var roundTimer;
 var word;
@@ -27,10 +28,10 @@ module.exports = function (io) {
 
     drawerQueue[0].emit('round start', {
       drawer: true,
-      word: word,
+      word: word
     });
     drawerQueue[0].broadcast.emit('round start', {
-      drawer: false, // TODO: Send the name of the drawer.
+      drawer: false // TODO: Send the name of the drawer.
     });
 
     roundTimer = setTimeout(endRound, ROUND_LENGTH * 1000);
@@ -49,6 +50,15 @@ module.exports = function (io) {
         endRound();
       // Remove from the queue.
       drawerQueue.splice(drawerQueue.indexOf(socket), 1);
+      delete usernames[socket.username];
+      io.sockets.emit('update users', usernames);
+    });
+
+    socket.on('add player', function (username) {
+      socket.username = username;
+      // TODO: Check that username is unique.
+      usernames[username] = username;
+      io.sockets.emit('update players', usernames);
     });
 
     socket.on('draw', function (data) {

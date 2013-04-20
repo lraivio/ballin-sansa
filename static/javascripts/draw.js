@@ -7,6 +7,8 @@ $(document).ready(function() {
 
     // Make sure <canvas> is completely supported.
     if (canvas.getContext) {
+      var $playerList = $('.player-list');
+
       var ctx = canvas.getContext('2d');
       var paint = false;
       var points = [];
@@ -53,6 +55,7 @@ $(document).ready(function() {
         newPoints = [];
         redraw();
       });
+
       socket.on('round start', function (data) {
         console.log('round started!', data);
         if (data.drawer)
@@ -67,6 +70,13 @@ $(document).ready(function() {
           addPointInfo(d.x, d.y, d.dragging, d.color);
         }
         redraw();
+      });
+
+      socket.on('update players', function (usernames) {
+        $playerList.empty();
+        $.each(usernames, function(key, value) {
+          $playerList.append('<li>' + key + '</li>');
+        });
       });
 
       var initColorBar = function () {
@@ -118,6 +128,7 @@ $(document).ready(function() {
       };
 
       initColorBar();
+      socket.emit('add player', prompt('Please enter a username you want to use when playing.'));
 
       $('.color-bar li').on('click', function (event) {
         event.preventDefault();

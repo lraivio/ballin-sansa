@@ -12,10 +12,18 @@
 
   <body>
     <div class="drawing-board">
-      <canvas id="canvas" width="800" height="450">Your browser does not support canvas!</canvas>
+      <canvas id="canvas" width="800" height="450">
+        <p>
+          <strong>Your browser does not support canvas!</strong><br>
+          To play the game please use a different browser.
+        </p>
+      </canvas>
       <div class="toolbar">
         <ul class="color-bar"></ul>
       </div>
+    </div>
+    <div class="right-bar">
+      <ul class="player-list"></ul>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
