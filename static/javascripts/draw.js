@@ -8,6 +8,7 @@ $(document).ready(function() {
     // Make sure <canvas> is completely supported.
     if (canvas.getContext) {
       var $playerList = $('.player-list');
+      var chatBox = document.getElementById('chat-box');
 
       var ctx = canvas.getContext('2d');
       var paint = false;
@@ -77,6 +78,12 @@ $(document).ready(function() {
         $.each(usernames, function(key, value) {
           $playerList.append('<li>' + key + '</li>');
         });
+      });
+
+      socket.on('update chat', function (username, message) {
+        var line = username + ': ' + message + '\n';
+        chatBox.value += line;
+        chatBox.scrollTop = chatBox.scrollHeight;
       });
 
       var initColorBar = function () {

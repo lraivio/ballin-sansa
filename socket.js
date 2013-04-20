@@ -9,7 +9,11 @@ var words = require('./words');
 
 module.exports = function (io) {
   function endRound() {
+    var chatMessage = '';
     io.sockets.emit('round end', {word: word});
+    chatMessage = 'Round ended! The word was "' + word + '".';
+    io.sockets.emit('update chat', 'Server', chatMessage);
+
     clearTimeout(roundTimer);
     drawing = [];
     word = undefined;
@@ -24,15 +28,20 @@ module.exports = function (io) {
   }
 
   function startRound() {
+    var chatMessage = '';
     word = words[~~(Math.random() * words.length)];
 
     drawerQueue[0].emit('round start', {
       drawer: true,
       word: word
     });
+    chatMessage = 'Round started! It\'s your turn to draw. The word is "' + word + '".';
+    drawerQueue[0].emit('update chat', 'Server', chatMessage);
     drawerQueue[0].broadcast.emit('round start', {
       drawer: false // TODO: Send the name of the drawer.
     });
+    chatMessage = 'Round started! It\'s ' + drawerQueue[0].username + '\'s turn to draw.';
+    drawerQueue[0].broadcast.emit('update chat', 'Server', chatMessage);
 
     roundTimer = setTimeout(endRound, ROUND_LENGTH * 1000);
   }
@@ -52,6 +61,7 @@ module.exports = function (io) {
       drawerQueue.splice(drawerQueue.indexOf(socket), 1);
       delete usernames[socket.username];
       io.sockets.emit('update users', usernames);
+      socket.broadcast.emit('update chat', 'Server', socket.username + ' has left the game');
     });
 
     socket.on('add player', function (username) {
@@ -59,6 +69,8 @@ module.exports = function (io) {
       // TODO: Check that username is unique.
       usernames[username] = username;
       io.sockets.emit('update players', usernames);
+      socket.emit('update chat', 'Server', 'You have joined the game');
+      socket.broadcast.emit('update chat', 'Server', username + ' has joined the game');
     });
 
     socket.on('draw', function (data) {
