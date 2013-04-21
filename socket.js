@@ -9,10 +9,12 @@ var words = require('./words');
 
 module.exports = function (io) {
   function endRound() {
-    var chatMessage = '';
     io.sockets.emit('round end', {word: word});
-    chatMessage = 'Round ended! The word was "' + word + '".';
-    io.sockets.emit('update chat', 'Server', chatMessage);
+    io.sockets.emit(
+      'update chat',
+      'Server',
+      "Round ended! The word was '" + word "'."
+    );
 
     clearTimeout(roundTimer);
     drawing = [];
@@ -28,27 +30,30 @@ module.exports = function (io) {
   }
 
   function startRound() {
-    var chatMessage = '';
     word = words[~~(Math.random() * words.length)];
 
     drawerQueue[0].emit('round start', {
       drawer: true,
       word: word
     });
-    chatMessage = 'Round started! It\'s your turn to draw. The word is "' + word + '".';
-    drawerQueue[0].emit('update chat', 'Server', chatMessage);
+    drawerQueue[0].emit(
+      'update chat',
+      'Server',
+      "Round started! It's your turn to draw. The word is '" + word "'."
+    );
     drawerQueue[0].broadcast.emit('round start', {
       drawer: false // TODO: Send the name of the drawer.
     });
-    chatMessage = 'Round started! It\'s ' + drawerQueue[0].username + '\'s turn to draw.';
-    drawerQueue[0].broadcast.emit('update chat', 'Server', chatMessage);
+    drawerQueue[0].broadcast.emit(
+      'update chat',
+      'Server',
+      "Round started! It's " + drawerQueue[0].username + "'s turn to draw."
+    );
 
     roundTimer = setTimeout(endRound, ROUND_LENGTH * 1000);
   }
 
   io.sockets.on('connection', function (socket) {
-    drawerQueue.push(socket);
-
     if (drawing) {
       // Send the existing drawing.
       socket.emit('draw', drawing);
@@ -61,7 +66,11 @@ module.exports = function (io) {
       drawerQueue.splice(drawerQueue.indexOf(socket), 1);
       delete usernames[socket.username];
       io.sockets.emit('update users', usernames);
-      socket.broadcast.emit('update chat', 'Server', socket.username + ' has left the game');
+      socket.broadcast.emit(
+        'update chat',
+        'Server',
+        socket.username + ' has left the game'
+      );
     });
 
     socket.on('add player', function (username) {
@@ -70,7 +79,17 @@ module.exports = function (io) {
       usernames[username] = username;
       io.sockets.emit('update players', usernames);
       socket.emit('update chat', 'Server', 'You have joined the game');
-      socket.broadcast.emit('update chat', 'Server', username + ' has joined the game');
+      socket.broadcast.emit(
+        'update chat',
+        'Server',
+        username + ' has joined the game'
+      );
+
+      drawerQueue.push(socket);
+      // Start round if needed.
+      if (drawerQueue.length == 2 && !roundTimer) {
+        startRound();
+      }
     });
 
     socket.on('draw', function (data) {
@@ -83,10 +102,5 @@ module.exports = function (io) {
     socket.on('chat', function (message) {
       io.sockets.emit('update chat', socket.username, message);
     });
-
-    // Start round if needed.
-    if (drawerQueue.length == 2 && !roundTimer) {
-      startRound();
-    }
   });
 };
