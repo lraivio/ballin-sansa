@@ -1,20 +1,37 @@
-var ROUND_LENGTH = 45;
+var ROUND_LENGTH = 60;
 
 var drawerQueue = [];
 var players = Object.create(null);
 var drawing = [];
 var roundTimer;
+var roundStartTime;
 var word;
 var words = require('./words');
 
 module.exports = function (io) {
-  function endRound() {
+  function calculatePoints(timeRemaining, drawer) {
+    return ~~(timeRemaining / 100);
+  }
+
+  function endRound(guesser) {
+    var timeRemaining =
+      ROUND_LENGTH * 1000 -
+      (new Date().getTime() - roundStartTime);
     io.sockets.emit('round end', {word: word});
     io.sockets.emit(
       'update chat',
       'Server',
-      "Round ended! The word was '" + word + "'."
+      (guesser
+       ? guesser + " guessed the word!"
+       : "Round ended!")
+      + " The word was '" + word + "'."
     );
+
+    if (guesser) {
+      players[guesser] += calculatePoints(timeRemaining, false);
+      players[drawerQueue[0].username] += calculatePoints(timeRemaining, true);
+      io.sockets.emit('update players', players);
+    }
 
     clearTimeout(roundTimer);
     drawing = [];
@@ -34,7 +51,8 @@ module.exports = function (io) {
 
     drawerQueue[0].emit('round start', {
       drawer: true,
-      word: word
+      word: word,
+      time: ROUND_LENGTH
     });
     drawerQueue[0].emit(
       'update chat',
@@ -42,7 +60,8 @@ module.exports = function (io) {
       "Round started! It's your turn to draw. The word is '" + word + "'."
     );
     drawerQueue[0].broadcast.emit('round start', {
-      drawer: false // TODO: Send the name of the drawer.
+      drawer: false,
+      time: ROUND_LENGTH
     });
     drawerQueue[0].broadcast.emit(
       'update chat',
@@ -51,12 +70,17 @@ module.exports = function (io) {
     );
 
     roundTimer = setTimeout(endRound, ROUND_LENGTH * 1000);
+    roundStartTime = new Date().getTime();
   }
 
   io.sockets.on('connection', function (socket) {
-    if (drawing) {
-      // Send the existing drawing.
+    if (roundTimer) {
+      // Send info required for current round.
       socket.emit('draw', drawing);
+      socket.emit('round start', {
+        drawer: false,
+        time: ROUND_LENGTH
+      });
     }
 
     socket.on('disconnect', function () {
@@ -81,7 +105,7 @@ module.exports = function (io) {
           return;
         }
       }
-      if (lowerCaseName === 'server') {
+      if (lowerCaseName === 'server' || lowerCaseName.length === 0) {
         socket.emit('invalid name');
         return;
       }
@@ -111,7 +135,13 @@ module.exports = function (io) {
     });
 
     socket.on('chat', function (message) {
+      if (socket === drawerQueue[0])
+        return;
+
       io.sockets.emit('update chat', socket.username, message);
+      if (message.toLowerCase() === word) {
+        endRound(socket.username);
+      }
     });
   });
 };
