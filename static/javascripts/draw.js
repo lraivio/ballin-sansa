@@ -15,6 +15,7 @@ $(document).ready(function() {
       var paint = false;
       var points = [];
       var newPoints;
+      var drawer = false; // Whether the user is the drawer or not.
 
       var colors = {
         red:         '#ee4035',
@@ -27,6 +28,9 @@ $(document).ready(function() {
       var currentColor = colors.red;
 
       $('#canvas').on('mousedown', function (event) {
+        if (!drawer) {
+          return;
+        }
         var mouseX = event.pageX - $(this).offset().left;
         var mouseY = event.pageY - $(this).offset().top;
         newPoints = [];
@@ -36,7 +40,7 @@ $(document).ready(function() {
       });
 
       $('#canvas').on('mousemove', function (event) {
-        if (paint) {
+        if (paint && drawer) {
           var mouseX = event.pageX - $(this).offset().left;
           var mouseY = event.pageY - $(this).offset().top;
           addPointInfo(mouseX, mouseY, true);
@@ -45,7 +49,7 @@ $(document).ready(function() {
       });
 
       $('#canvas').on('mouseup mouseleave', function (event) {
-        if (paint) {
+        if (paint && drawer) {
           paint = false;
           socket.emit('draw', newPoints);
         }
@@ -68,6 +72,7 @@ $(document).ready(function() {
 
       socket.on('round start', function (data) {
         console.log('round started!', data);
+        drawer = data.drawer;
         if (data.drawer)
           console.log('You are drawing!');
       });
