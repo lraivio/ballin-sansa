@@ -7,7 +7,7 @@ $(document).ready(function() {
 
     // Make sure <canvas> is completely supported.
     if (canvas.getContext) {
-      var $playerList = $('.player-list');
+      var $playerTableBody = $('.players tbody');
       var chatBox = document.getElementById('chat-box');
 
       var ctx = canvas.getContext('2d');
@@ -74,15 +74,16 @@ $(document).ready(function() {
       });
 
       socket.on('update players', function (usernames) {
-        $playerList.empty();
+        $playerTableBody.empty();
         $.each(usernames, function(key, value) {
-          $playerList.append('<li>' + key + '</li>');
+          $playerTableBody.append('<tr><td>' + key + '</td><td>0</td></tr>');
         });
       });
 
       socket.on('update chat', function (username, message) {
         var line = username + ': ' + message + '\n';
         chatBox.value += line;
+        // Make sure the chat box is scrolled down so the lates messages are shown.
         chatBox.scrollTop = chatBox.scrollHeight;
       });
 

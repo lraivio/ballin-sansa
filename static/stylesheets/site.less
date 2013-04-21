@@ -1,24 +1,75 @@
+body {
+  margin: 20px;
+}
+
+.left-bar {
+  width: 550px;
+  float: left;
+}
+
+.right-bar {
+  width: 350px;
+  margin-left: 20px;
+  float: left;
+}
+
 #canvas {
   border: 2px solid #bbbbbb;
 }
 
 .color-bar {
   list-style: none;
+
+  > li {
+    display: inline-block;
+
+    &.active {
+      border: 4px inset yellow;
+    }
+
+    &:hover {
+      border: 4px inset yellow;
+    }
+
+    > a {
+      display: block;
+      padding: 15px;
+    }
+  }
 }
 
-.color-bar > li {
-  display: inline-block;
+#chat-box {
+  width: 100%;
+  height: 300px;
+  border: solid 2px #bbbbbb;
+  padding: 10px;
+  margin-bottom: 10px;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
-.color-bar > .active {
-    border: 4px inset yellow;
-}
+table.players {
+  width: 100%;
+  border: solid 2px #bbbbbb;
 
-.color-bar li:hover {
-    border: 4px inset yellow;
-}
+  th {
+    padding: 5px 0;
+  }
 
-.color-bar > li > a {
-    display: block;
-    padding: 15px;
+  td {
+    border-top: 1px solid #dddddd;
+    padding: 5px 0;
+  }
+
+  th:first-child, td:first-child {
+    width: 80%;
+    text-align: left;
+    padding-left: 10px;
+  }
+
+  th + th, td + td {
+    width: 20%;
+    text-align: center;
+  }
 }
