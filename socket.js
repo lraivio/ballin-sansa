@@ -101,7 +101,7 @@ module.exports = function (io) {
     });
 
     socket.on('add player', function (username) {
-      var lowerCaseName = username.toLowerCase();
+      var lowerCaseName = (username || '').toLowerCase();
       for (var name in players) {
         if (name.toLowerCase() === lowerCaseName) {
           socket.emit('invalid name');
