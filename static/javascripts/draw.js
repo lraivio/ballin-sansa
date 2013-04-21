@@ -94,11 +94,12 @@ $(document).ready(function() {
         redraw();
       });
 
-      socket.on('update players', function (usernames) {
+      socket.on('update players', function (players) {
         $playerTableBody.empty();
-        $.each(usernames, function (key, value) {
+        $.each(players, function (_, player) {
           $playerTableBody.append(
-            '<tr><td>' + key + '</td><td>' + value + '</td></tr>'
+            '<tr><td>' + player.name + '</td><td>' +
+            player.points + '</td></tr>'
           );
         });
       });
