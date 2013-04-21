@@ -89,8 +89,10 @@ $(document).ready(function() {
 
       socket.on('update players', function (usernames) {
         $playerTableBody.empty();
-        $.each(usernames, function(key, value) {
-          $playerTableBody.append('<tr><td>' + key + '</td><td>0</td></tr>');
+        $.each(usernames, function (key, value) {
+          $playerTableBody.append(
+            '<tr><td>' + key + '</td><td>' + value + '</td></tr>'
+          );
         });
       });
 
@@ -150,7 +152,16 @@ $(document).ready(function() {
       };
 
       initColorBar();
-      socket.emit('add player', prompt('Please enter a username you want to use when playing.'));
+      socket.emit(
+        'add player',
+        prompt('Please enter a username you want to use when playing.')
+      );
+      socket.on('invalid name', function () {
+        socket.emit(
+          'add player',
+          prompt('That name is already taken. Please enter another name.')
+        );
+      });
 
       $('.color-bar li').on('click', function (event) {
         event.preventDefault();
