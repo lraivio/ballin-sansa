@@ -23,7 +23,7 @@ body {
 .color-bar {
   list-style: none;
   padding: 0;
-  border: 2px solid #bbbbbb;
+  border: @basicBorder;
   display: inline-block;
   height: 30px;
 
@@ -35,8 +35,6 @@ body {
 
     &.active {
       opacity: 1;
-      position: relative;
-      top: -7px;
     }
 
     &:hover {
