@@ -1,4 +1,5 @@
 var ROUND_LENGTH = 60;
+var TIME_BETWEEN_ROUNDS = 5;
 
 var drawerQueue = [];
 var players = Object.create(null);
@@ -41,9 +42,11 @@ module.exports = function (io) {
     // Move the drawer to be last in queue.
     drawerQueue.push(drawerQueue.shift());
 
-    if (drawerQueue.length > 1) {
-      startRound();
-    }
+    setTimeout(function () {
+      if (drawerQueue.length > 1 && !roundTimer) {
+        startRound();
+      }
+    }, TIME_BETWEEN_ROUNDS * 1000);
   }
 
   function startRound() {

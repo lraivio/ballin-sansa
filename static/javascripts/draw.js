@@ -64,17 +64,23 @@ $(document).ready(function() {
       });
 
       socket.on('round end', function (data) {
-        console.log('round ended!', data);
         points = [];
         newPoints = [];
         redraw();
       });
 
       socket.on('round start', function (data) {
-        console.log('round started!', data);
         drawer = data.drawer;
-        if (data.drawer)
-          console.log('You are drawing!');
+        $('.timer .time').countTo({
+          interval: 1000,
+          startNumber: data.time - 1,
+          endNumber: 0,
+          onStart: function (timer) {
+            socket.on('round end', function () {
+              timer.finished = true;
+            });
+          }
+        });
       });
 
       socket.on('draw', function (data) {

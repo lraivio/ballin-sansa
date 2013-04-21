@@ -7,6 +7,7 @@ module.exports = {
     'dataType': 'javascript',
     'files': [
       'vendor/jquery-1.9.1.js',
+      'vendor/jquery.countTo.js',
       '*',
     ],
   },
