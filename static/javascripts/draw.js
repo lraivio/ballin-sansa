@@ -64,12 +64,13 @@ $(document).ready(function() {
       });
 
       socket.on('round end', function (data) {
-        points = [];
-        newPoints = [];
-        redraw();
+        drawer = null;
       });
 
       socket.on('round start', function (data) {
+        points = [];
+        newPoints = [];
+        redraw();
         drawer = data.drawer;
         $('.timer .time').countTo({
           interval: 1000,
