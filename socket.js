@@ -80,6 +80,10 @@ module.exports = function (io) {
       }
     });
 
+    socket.on('chat', function (message) {
+      io.sockets.emit('update chat', socket.username, message);
+    });
+
     // Start round if needed.
     if (drawerQueue.length == 2 && !roundTimer) {
       startRound();

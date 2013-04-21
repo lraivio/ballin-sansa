@@ -9,6 +9,7 @@ $(document).ready(function() {
     if (canvas.getContext) {
       var $playerTableBody = $('.players tbody');
       var chatBox = document.getElementById('chat-box');
+      var $chatInput = $('.chat-form input');
 
       var ctx = canvas.getContext('2d');
       var paint = false;
@@ -48,6 +49,14 @@ $(document).ready(function() {
           paint = false;
           socket.emit('draw', newPoints);
         }
+      });
+
+      $('.chat-form').on('submit', function (event) {
+        event.preventDefault();
+        // TODO: Make sure that the player drawing can't send messages or at least can't make guesses.
+        var message = $chatInput.val();
+        $chatInput.val('');
+        socket.emit('chat', message);
       });
 
       socket.on('round end', function (data) {
