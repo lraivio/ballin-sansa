@@ -10,6 +10,16 @@ var word;
 var words = require('./words');
 
 module.exports = function (io) {
+  function updatePlayers() {
+    var playerArray = [];
+    for (var name in players)
+      playerArray.push({name: name, points: players[name]});
+    playerArray.sort(function (a, b) {
+      return b.points - a.points;
+    });
+    io.sockets.emit('update players', playerArray);
+  }
+
   function calculatePoints(timeRemaining, drawer) {
     return ~~(timeRemaining / 100);
   }
@@ -31,7 +41,7 @@ module.exports = function (io) {
     if (guesser) {
       players[guesser] += calculatePoints(timeRemaining, false);
       players[drawerQueue[0].username] += calculatePoints(timeRemaining, true);
-      io.sockets.emit('update players', players);
+      updatePlayers();
     }
 
     clearTimeout(roundTimer);
@@ -92,7 +102,7 @@ module.exports = function (io) {
       // Remove from the queue.
       drawerQueue.splice(drawerQueue.indexOf(socket), 1);
       delete players[socket.username];
-      io.sockets.emit('update players', players);
+      updatePlayers();
       socket.broadcast.emit(
         'update chat',
         'Server',
@@ -101,7 +111,7 @@ module.exports = function (io) {
     });
 
     socket.on('add player', function (username) {
-      var lowerCaseName = username.toLowerCase();
+      var lowerCaseName = (username || '').toLowerCase();
       for (var name in players) {
         if (name.toLowerCase() === lowerCaseName) {
           socket.emit('invalid name');
@@ -115,7 +125,7 @@ module.exports = function (io) {
 
       socket.username = username;
       players[username] = 0;
-      io.sockets.emit('update players', players);
+      updatePlayers();
       socket.emit('update chat', 'Server', 'You have joined the game');
       socket.broadcast.emit(
         'update chat',
