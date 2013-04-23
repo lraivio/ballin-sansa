@@ -23,7 +23,9 @@ $(document).ready(function() {
         blue:        '#0079c2',
         yellow:      '#ffd203',
         orange:      '#f89828',
-        purple:      '#5a4099'
+        purple:      '#5a4099',
+        brown:       '#453823',
+        white:       '#ffffff'
       };
       var currentColor = colors.red;
       var currentSize = 4;
