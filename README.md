@@ -1,7 +1,8 @@
 ballin-sansa
 ============
 
-Socket and canvas based drawing guessing game.
+Socket and canvas based drawing guessing game. The game starts once at least two players have connected (e.g.
+two different tabs).
 
 ## Installation
 
