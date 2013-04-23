@@ -26,6 +26,7 @@ $(document).ready(function() {
         purple:      '#5a4099'
       };
       var currentColor = colors.red;
+      var currentSize = 4;
 
       $('#canvas').on('mousedown', function (event) {
         if (!drawer) {
@@ -89,7 +90,7 @@ $(document).ready(function() {
         var d;
         for (var i = 0; i < data.length; i += 1) {
           d = data[i];
-          addPointInfo(d.x, d.y, d.dragging, d.color);
+          addPointInfo(d.x, d.y, d.dragging, d.color, d.size);
         }
         redraw();
       });
@@ -111,6 +112,14 @@ $(document).ready(function() {
         chatBox.scrollTop = chatBox.scrollHeight;
       });
 
+      $('.size-bar li').on('click', function (event) {
+        event.preventDefault();
+        var $li = $(event.target).closest('li');
+        $('.size-bar li').removeClass('active');
+        $li.addClass('active');
+        currentSize = $li.find('a').attr('data-size');
+      });
+
       var initColorBar = function () {
         var $colorBar = $('.color-bar');
         $.each(colors, function (key, value) {
@@ -125,12 +134,13 @@ $(document).ready(function() {
         $colorBar.children().first().addClass('active');
       };
 
-      var addPointInfo = function (x, y, dragging, color) {
+      var addPointInfo = function (x, y, dragging, color, size) {
         var point = {
           x: x,
           y: y,
           dragging: dragging,
-          color: color || currentColor
+          color: color || currentColor,
+          size: size || currentSize
         };
         if (newPoints)
           newPoints.push(point);
@@ -142,7 +152,6 @@ $(document).ready(function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.lineJoin = "round";
-        ctx.lineWidth = 4;
 
         for (var i = 0; i < points.length; i++) {
           point = points[i];
@@ -155,6 +164,7 @@ $(document).ready(function() {
           ctx.lineTo(point.x, point.y);
           ctx.closePath();
           ctx.strokeStyle = point.color;
+          ctx.lineWidth = point.size;
           ctx.stroke();
         }
       };
